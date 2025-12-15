@@ -28,6 +28,18 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Copy config files to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.prod.yml,nginx/default.conf"
+          target: "/home/${{ secrets.EC2_USERNAME }}/spy_sherlock"
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
@@ -35,18 +47,11 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Proje klasörüne git (yoksa oluştur ve clone'la - sadece docker-compose ve nginx conf için)
-            if [ ! -d "/home/${{ secrets.EC2_USERNAME }}/spy_sherlock" ]; then
-              git clone https://github.com/${{ secrets.GITHUB_USERNAME }}/spy_sherlock.git
-              cd spy_sherlock
-            else
-              cd spy_sherlock
-              git pull origin master
-            fi
-
+            cd /home/${{ secrets.EC2_USERNAME }}/spy_sherlock
+            
             # En güncel imajı çek
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/spy_sherlock:latest
 
-            # Docker Compose ile başlat (Build almadan, imajı kullanarak)
+            # Docker Compose ile başlat
             docker-compose -f docker-compose.prod.yml up -d
 
