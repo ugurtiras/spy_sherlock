@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    build: ./backend
+    image: ${DOCKERHUB_USERNAME}/spy_sherlock:latest
     container_name: spy_sherlock_app
     restart: always
     environment:
