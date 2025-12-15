@@ -225,11 +225,6 @@ socket.on("game_started", (data) => {
   locationsToShow.forEach(loc => {
     const li = document.createElement("li");
     li.textContent = loc;
-    li.style.margin = "5px";
-    li.style.padding = "5px 10px";
-    li.style.background = "#333";
-    li.style.borderRadius = "4px";
-    li.style.listStyle = "none";
     gameLocList.appendChild(li);
   });
 });
