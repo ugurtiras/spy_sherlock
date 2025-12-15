@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>SpySherlock</title>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>🕵️ SpySherlock</h1>
+
+  <!-- Login Section -->
+  <div id="loginSection">
+    <div class="box">
+      <h3>🏠 Oda Oluştur</h3>
+      <input id="createName" placeholder="İsmin" />
+      <br>
+      <button onclick="createRoom()">Oluştur</button>
+    </div>
+
+    <div class="box">
+      <h3>🚪 Odaya Katıl</h3>
+      <input id="joinName" placeholder="İsmin" />
+      <br>
+      <input id="joinRoomId" placeholder="Oda ID" />
+      <br>
+      <button onclick="joinRoom()">Katıl</button>
+    </div>
+  </div>
+
+  <!-- Lobby Section -->
+  <div id="lobbySection" class="hidden">
+    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 400px; margin: 0 auto;">
+      <h2 id="roomTitle">Oda: </h2>
+      <button onclick="leaveRoom()" style="background: #6c757d; padding: 5px 10px; font-size: 14px;">Çıkış</button>
+    </div>
+    
+    <div class="box">
+      <h3>👥 Oyuncular</h3>
+      <ul id="playersList"></ul>
+    </div>
+
+    <div id="hostControls" class="hidden box">
+      <h3>👑 Moderatör Paneli</h3>
+      <button onclick="startGame()">Oyunu Başlat</button>
+      <br><br>
+      <details>
+        <summary>Mekanları Düzenle</summary>
+        <div id="locationsCheckboxes" style="text-align: left; max-height: 200px; overflow-y: scroll; border: 1px solid #555; padding: 5px;">
+          <!-- Checkboxes will be injected here -->
+        </div>
+        <br>
+        <button onclick="updateLocations()">Kaydet</button>
+      </details>
+    </div>
+
+    <div class="box">
+      <h3>📍 Aktif Mekanlar (<span id="locCount">0</span>)</h3>
+      <ul id="locationsList" style="max-height: 150px; overflow-y: auto;"></ul>
+    </div>
+  </div>
+
+  <!-- Game Section -->
+  <div id="gameSection" class="hidden">
+    <div class="box">
+      <h2>Oyun Başladı!</h2>
+      <div class="role-card" id="roleDisplay"></div>
+      <p id="locationDisplay"></p>
+    </div>
+
+    <div class="box">
+      <h3>📍 Olası Mekanlar</h3>
+      <ul id="gameLocationsList" style="display: flex; flex-wrap: wrap; justify-content: center; padding: 0;"></ul>
+    </div>
+
+    <button id="endGameBtn" class="hidden" onclick="stopGame()" style="background: #dc3545;">Oyunu Bitir & Lobiye Dön</button>
+  </div>
+
+  <div id="notification-container"></div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmation-modal" class="modal hidden">
+    <div class="modal-content">
+      <p id="confirmation-message"></p>
+      <div style="display: flex; justify-content: center; gap: 10px;">
+        <button id="confirm-yes">Evet</button>
+        <button id="confirm-no">Hayır</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="client.js"></script>
+
+</body>
+</html>

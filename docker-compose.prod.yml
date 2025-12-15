@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    build: ./backend
+    container_name: spy_sherlock_app
+    restart: always
+    environment:
+      - PORT=${PORT:-3000}
+      - NODE_ENV=${NODE_ENV:-production}
+    networks:
+      - spy_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: spy_sherlock_nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - spy_network
+
+networks:
+  spy_network:
+    driver: bridge

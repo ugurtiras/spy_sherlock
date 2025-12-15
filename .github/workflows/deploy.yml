@@ -1,0 +1,32 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Proje klasörüne git (yoksa oluştur ve clone'la)
+            if [ ! -d "/home/${{ secrets.EC2_USERNAME }}/spy_sherlock" ]; then
+              git clone https://github.com/${{ secrets.GITHUB_USERNAME }}/spy_sherlock.git
+              cd spy_sherlock
+            else
+              cd spy_sherlock
+              git pull origin main
+            fi
+
+            # Docker Compose ile başlat (Build alarak)
+            # Not: docker-compose.prod.yml dosyasını kullanıyoruz
+            docker-compose -f docker-compose.prod.yml up -d --build
