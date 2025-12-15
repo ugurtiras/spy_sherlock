@@ -53,5 +53,6 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/spy_sherlock:latest
 
             # Docker Compose ile başlat
-            docker-compose -f docker-compose.prod.yml up -d
+            # DOCKERHUB_USERNAME değişkenini komut satırından veriyoruz
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }} docker-compose -f docker-compose.prod.yml up -d
 
