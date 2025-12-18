@@ -21,7 +21,7 @@ const log = (...args) => {
 const rooms = {};
 
 const ALL_LOCATIONS = [
-  "Mustafa Kemal Atatürk", "Barış Manço", "Kemal Sunal", "Sezen Aksu", "Tarkan",
+  "Mustafa Kemal Atatürk","Mert Kaya","Hakan Balcı","Çisem","Yusuf Ziya Atıcı","Y","Mine Tugay","Beren Saat","Ümit Özdağ" ,"Muharrem İnce","Barış Manço","Berk","Kubilay","mavi bic çakmak","nikotin sakızı" ,"ankaray","Kemal Sunal","motive","taylor swift", "Sezen Aksu", "Tarkan",
   "Müslüm Gürses", "Cem Yılmaz", "Şener Şen", "Adile Naşit", "Haluk Bilginer",
   "Fatih Terim", "Fernando Muslera", "Alex de Souza", "Gheorghe Hagi", "Cristiano Ronaldo",
   "Lionel Messi", "Acun Ilıcalı", "Kıvanç Tatlıtuğ", "Kenan İmirzalıoğlu", "Beren Saat",
