@@ -21,13 +21,13 @@ const log = (...args) => {
 const rooms = {};
 
 const ALL_LOCATIONS = [
-  "Hastane", "Okul", "Banka", "Uzay İstasyonu", "Korsan Gemisi",
-  "Süpermarket", "Tiyatro", "Üniversite", "Restoran", "Elçilik",
-  "Kumsal", "Yolcu Uçağı", "Kumarhane", "Sirk", "Kurumsal Parti",
-  "Haçlı Ordusu", "SPA", "Otel", "Denizaltı", "Hayvanat Bahçesi",
-  "Polis Merkezi", "Kütüphane", "Stadyum", "Müze", "Metro İstasyonu",
-  "Askeri Üs", "Mezarlık", "Cami", "Kilise", "İtfaiye",
-  "Benzin İstasyonu", "Hapishane", "Caz Kulübü", "Düğün", "Gece Kulübü"
+  "Mustafa Kemal Atatürk", "Barış Manço", "Kemal Sunal", "Sezen Aksu", "Tarkan",
+  "Müslüm Gürses", "Cem Yılmaz", "Şener Şen", "Adile Naşit", "Haluk Bilginer",
+  "Fatih Terim", "Fernando Muslera", "Alex de Souza", "Gheorghe Hagi", "Cristiano Ronaldo",
+  "Lionel Messi", "Acun Ilıcalı", "Kıvanç Tatlıtuğ", "Kenan İmirzalıoğlu", "Beren Saat",
+  "Serenay Sarıkaya", "Zeki Müren", "Aşık Veysel", "Neşet Ertaş", "Cüneyt Arkın",
+  "Türkan Şoray", "Fatma Girik", "Filiz Akın", "Hülya Koçyiğit", "Lefter Küçükandonyadis",
+  "Metin Oktay", "İlber Ortaylı", "Celal Şengör", "Hadise", "Murat Boz"
 ];
 
 // app.get("/", (req, res) => {
@@ -163,7 +163,7 @@ function generateRoomId() {
         spyId
       };
 
-      log(`🎲 Oyun Başladı: Oda ${roomId}, Mekan: ${location}, Casus: ${room.players[spyIndex].name}`);
+      log(`🎲 Oyun Başladı: Oda ${roomId}, Kişi: ${location}, Casus: ${room.players[spyIndex].name}`);
 
       // Send roles to each player
       room.players.forEach(player => {

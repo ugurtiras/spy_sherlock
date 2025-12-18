@@ -200,7 +200,7 @@ socket.on("game_started", (data) => {
   const locText = document.getElementById("locationDisplay");
 
   if (roleText) roleText.innerText = "Rolün: " + data.role;
-  if (locText) locText.innerText = data.role === "Casus" ? "Mekanı bulmaya çalış!" : "Mekan: " + data.location;
+  if (locText) locText.innerText = data.role === "Casus" ? "Kişiyi bulmaya çalış!" : "Kişi: " + data.location;
 
   // Update currentHostId if provided (e.g. on reconnect)
   if (data.hostId) {
