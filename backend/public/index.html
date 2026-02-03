@@ -46,8 +46,30 @@
       <h3>👑 Moderatör Paneli</h3>
       <button onclick="startGame()">Oyunu Başlat</button>
       <br><br>
+      
+      <!-- Kategori Seçimi -->
       <details>
-        <summary>Kişileri Düzenle</summary>
+        <summary>📂 Kategorileri Düzenle</summary>
+        <div id="categoryToggles" class="category-toggles">
+          <!-- Category toggles will be injected here -->
+        </div>
+      </details>
+      
+      <!-- Özel Değer Ekleme -->
+      <details>
+        <summary>➕ Özel Değer Ekle</summary>
+        <div class="custom-location-input">
+          <input type="text" id="customLocationInput" placeholder="Yeni değer girin..." />
+          <button onclick="addCustomLocation()" style="margin-top: 5px;">Ekle</button>
+        </div>
+        <div id="customLocationsList" class="custom-locations-list">
+          <!-- Custom locations will be listed here -->
+        </div>
+      </details>
+      
+      <!-- Detaylı Düzenleme -->
+      <details>
+        <summary>⚙️ Detaylı Düzenleme</summary>
         <div id="locationsCheckboxes" class="locations-scroll-container">
           <!-- Checkboxes will be injected here -->
         </div>
@@ -57,7 +79,7 @@
     </div>
 
     <div class="box">
-      <h3>📍 Aktif Kişiler (<span id="locCount">0</span>)</h3>
+      <h3>📍 Aktif Değerler (<span id="locCount">0</span>)</h3>
       <ul id="locationsList" class="locations-list-scroll"></ul>
     </div>
   </div>
@@ -71,7 +93,7 @@
     </div>
 
     <div class="box">
-      <h3>📍 Olası Kişiler</h3>
+      <h3>📍 Olası Değerler</h3>
       <ul id="gameLocationsList" class="game-locations-grid"></ul>
     </div>
 

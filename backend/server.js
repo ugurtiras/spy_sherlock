@@ -20,15 +20,36 @@ const log = (...args) => {
 
 const rooms = {};
 
-const ALL_LOCATIONS = [
-  "Mustafa Kemal Atatürk","Mert Kaya","Hakan Balcı","Çisem","Yusuf Ziya Atıcı","Y","Mine Tugay","Beren Saat","Ümit Özdağ" ,"Muharrem İnce","Barış Manço","Berk","Kubilay","mavi bic çakmak","nikotin sakızı" ,"ankaray","Kemal Sunal","motive","taylor swift", "Sezen Aksu", "Tarkan",
-  "Müslüm Gürses", "Cem Yılmaz", "Şener Şen", "Adile Naşit", "Haluk Bilginer",
-  "Fatih Terim", "Fernando Muslera", "Alex de Souza", "Gheorghe Hagi", "Cristiano Ronaldo",
-  "Lionel Messi", "Acun Ilıcalı", "Kıvanç Tatlıtuğ", "Kenan İmirzalıoğlu", "Beren Saat",
-  "Serenay Sarıkaya", "Zeki Müren", "Aşık Veysel", "Neşet Ertaş", "Cüneyt Arkın",
-  "Türkan Şoray", "Fatma Girik", "Filiz Akın", "Hülya Koçyiğit", "Lefter Küçükandonyadis",
-  "Metin Oktay", "İlber Ortaylı", "Celal Şengör", "Hadise", "Murat Boz"
-];
+const CATEGORIES = {
+  "Ünlüler": [
+    "Mustafa Kemal Atatürk", "Kemal Sunal", "Barış Manço", "Sezen Aksu", "Tarkan",
+    "Müslüm Gürses", "Cem Yılmaz", "Şener Şen", "Adile Naşit", "Haluk Bilginer",
+    "Kıvanç Tatlıtuğ", "Kenan İmirzalıoğlu", "Beren Saat", "Serenay Sarıkaya",
+    "Zeki Müren", "Aşık Veysel", "Neşet Ertaş", "Cüneyt Arkın", "Türkan Şoray",
+    "Fatma Girik", "Filiz Akın", "Hülya Koçyiğit", "İlber Ortaylı", "Celal Şengör",
+    "Hadise", "Murat Boz", "Acun Ilıcalı", "Taylor Swift", "Mine Tugay"
+  ],
+  "Sporcular": [
+    "Fatih Terim", "Fernando Muslera", "Alex de Souza", "Gheorghe Hagi",
+    "Cristiano Ronaldo", "Lionel Messi", "Lefter Küçükandonyadis", "Metin Oktay",
+    "Arda Güler", "Hakan Şükür", "Rüştü Reçber", "Serena Williams"
+  ],
+  "Mekanlar": [
+    "Hastane", "Okul", "Havalimanı", "Otel", "Restoran", "Sinema", "Banka",
+    "Süpermarket", "Plaj", "Müze", "Kütüphane", "Stadyum", "Tren İstasyonu",
+    "Lunapark", "Cami", "AVM", "Eczane", "Kuaför", "Spor Salonu", "Hastane"
+  ],
+  "Meslekler": [
+    "Doktor", "Öğretmen", "Mühendis", "Avukat", "Aşçı", "Pilot", "Polis",
+    "İtfaiyeci", "Hemşire", "Garson", "Kasap", "Berber", "Çiftçi", "Şoför",
+    "Muhasebeci", "Mimar", "Gazeteci", "Fotoğrafçı", "Veteriner", "Eczacı"
+  ],
+  "Filmler & Diziler": [
+    "Hababam Sınıfı", "Kurtlar Vadisi", "Ezel", "Behzat Ç.", "Leyla ile Mecnun",
+    "Çukur", "Muhteşem Yüzyıl", "Avrupa Yakası", "Yalan Dünya", "Arka Sokaklar",
+    "G.O.R.A.", "Recep İvedik", "Tosun Paşa", "Vizontele", "Babam ve Oğlum"
+  ]
+};
 
 // app.get("/", (req, res) => {
 //   res.sendFile(path.join(__dirname, "test.html"));
@@ -37,16 +58,21 @@ const ALL_LOCATIONS = [
 io.on("connection", (socket) => {
   log("🟢 Bağlandı:", socket.id);
 
-  // Send all available locations to the client upon connection
-  socket.emit("init_info", { allLocations: ALL_LOCATIONS });
+  // Send all available categories to the client upon connection
+  socket.emit("init_info", { categories: CATEGORIES });
 
   socket.on("create_room", ({ name }) => {
     const roomId = generateRoomId();
     
+    // Flatten all categories into one array for default locations
+    const allLocations = Object.values(CATEGORIES).flat();
+    
     rooms[roomId] = {
       hostId: socket.id,
       players: [],
-      locations: [...ALL_LOCATIONS], // Start with all locations enabled by default
+      categories: JSON.parse(JSON.stringify(CATEGORIES)), // Deep copy categories
+      locations: allLocations, // All locations enabled by default
+      customLocations: [], // Custom locations added by host
       game: null
     };
 
@@ -117,7 +143,9 @@ io.on("connection", (socket) => {
     io.to(roomId).emit("room_update", {
       players: room.players.filter(p => p.connected), // Only show connected players? Or show all? Let's show all for now but maybe mark disconnected
       hostId: room.hostId,
-      locations: room.locations
+      locations: room.locations,
+      categories: room.categories,
+      customLocations: room.customLocations
     });
   }
 
@@ -133,14 +161,54 @@ function generateRoomId() {
   return result;
 }
 
-  socket.on("update_locations", ({ roomId, locations }) => {
+  socket.on("update_locations", ({ roomId, locations, customLocations }) => {
     const room = rooms[roomId];
     if (room && room.hostId === socket.id) {
       room.locations = locations;
+      if (customLocations !== undefined) {
+        room.customLocations = customLocations;
+      }
       io.to(roomId).emit("room_update", {
         players: room.players,
         hostId: room.hostId,
-        locations: room.locations
+        locations: room.locations,
+        categories: room.categories,
+        customLocations: room.customLocations
+      });
+    }
+  });
+
+  // Add custom location
+  socket.on("add_custom_location", ({ roomId, location }) => {
+    const room = rooms[roomId];
+    if (room && room.hostId === socket.id && location && location.trim()) {
+      const trimmedLocation = location.trim();
+      if (!room.customLocations.includes(trimmedLocation)) {
+        room.customLocations.push(trimmedLocation);
+        room.locations.push(trimmedLocation);
+        io.to(roomId).emit("room_update", {
+          players: room.players,
+          hostId: room.hostId,
+          locations: room.locations,
+          categories: room.categories,
+          customLocations: room.customLocations
+        });
+      }
+    }
+  });
+
+  // Remove custom location
+  socket.on("remove_custom_location", ({ roomId, location }) => {
+    const room = rooms[roomId];
+    if (room && room.hostId === socket.id) {
+      room.customLocations = room.customLocations.filter(l => l !== location);
+      room.locations = room.locations.filter(l => l !== location);
+      io.to(roomId).emit("room_update", {
+        players: room.players,
+        hostId: room.hostId,
+        locations: room.locations,
+        categories: room.categories,
+        customLocations: room.customLocations
       });
     }
   });
@@ -191,7 +259,9 @@ function generateRoomId() {
       io.to(roomId).emit("room_update", {
         players: room.players,
         hostId: room.hostId,
-        locations: room.locations
+        locations: room.locations,
+        categories: room.categories,
+        customLocations: room.customLocations
       });
     }
   });
@@ -224,7 +294,9 @@ function generateRoomId() {
             io.to(roomId).emit("room_update", {
               players: room.players, // We might want to filter connected ones if we kept them
               hostId: room.hostId,
-              locations: room.locations
+              locations: room.locations,
+              categories: room.categories,
+              customLocations: room.customLocations
             });
           }
           log("🔴 Ayrıldı:", socket.id);

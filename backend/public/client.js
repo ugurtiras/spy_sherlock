@@ -1,7 +1,8 @@
 const socket = io();
 let myRoomId = "";
 let timerInterval;
-let allAvailableLocations = [];
+let allCategories = {};
+let currentCustomLocations = [];
 
 function showNotification(message, type = 'info') {
   const container = document.getElementById('notification-container');
@@ -40,7 +41,8 @@ function showConfirmation(message, onConfirm) {
 }
 
 socket.on("init_info", (data) => {
-  allAvailableLocations = data.allLocations;
+  allCategories = data.categories;
+  renderCategoryToggles([]);
   renderLocationCheckboxes([]);
 
   // Auto-reconnect if session exists
@@ -103,6 +105,13 @@ let currentLocations = [];
 socket.on("room_update", (data) => {
   currentHostId = data.hostId;
   currentLocations = data.locations;
+  currentCustomLocations = data.customLocations || [];
+  
+  // Update Categories from server if available
+  if (data.categories) {
+    allCategories = data.categories;
+  }
+  
   // Update Players
   const pList = document.getElementById("playersList");
   pList.innerHTML = "";
@@ -119,6 +128,11 @@ socket.on("room_update", (data) => {
   data.locations.forEach(loc => {
     const li = document.createElement("li");
     li.textContent = loc;
+    // Mark custom locations
+    if (currentCustomLocations.includes(loc)) {
+      li.style.color = "#ffc107";
+      li.textContent += " ⭐";
+    }
     lList.appendChild(li);
   });
 
@@ -127,7 +141,9 @@ socket.on("room_update", (data) => {
   const hostControls = document.getElementById("hostControls");
   if (isHost) {
     hostControls.classList.remove("hidden");
+    renderCategoryToggles(data.locations);
     renderLocationCheckboxes(data.locations);
+    renderCustomLocationsList();
   } else {
     hostControls.classList.add("hidden");
   }
@@ -143,19 +159,90 @@ socket.on("room_update", (data) => {
   }
 });
 
+// Render category toggles (enable/disable entire categories)
+function renderCategoryToggles(activeLocations) {
+  const container = document.getElementById("categoryToggles");
+  container.innerHTML = "";
+  
+  for (const [categoryName, categoryItems] of Object.entries(allCategories)) {
+    const div = document.createElement("div");
+    div.className = "category-toggle-item";
+    
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.id = "cat_" + categoryName;
+    checkbox.dataset.category = categoryName;
+    
+    // Check if all items in this category are active
+    const activeCount = categoryItems.filter(item => activeLocations.includes(item)).length;
+    checkbox.checked = activeCount === categoryItems.length;
+    checkbox.indeterminate = activeCount > 0 && activeCount < categoryItems.length;
+    
+    checkbox.addEventListener("change", () => toggleCategory(categoryName, checkbox.checked));
+    
+    const label = document.createElement("label");
+    label.htmlFor = "cat_" + categoryName;
+    label.innerHTML = `<strong>${categoryName}</strong> <span class="category-count">(${activeCount}/${categoryItems.length})</span>`;
+    
+    div.appendChild(checkbox);
+    div.appendChild(label);
+    container.appendChild(div);
+  }
+  
+  // Add custom locations category if exists
+  if (currentCustomLocations.length > 0) {
+    const div = document.createElement("div");
+    div.className = "category-toggle-item custom-category";
+    
+    const label = document.createElement("label");
+    label.innerHTML = `<strong>⭐ Özel Değerler</strong> <span class="category-count">(${currentCustomLocations.length})</span>`;
+    
+    div.appendChild(label);
+    container.appendChild(div);
+  }
+}
+
+// Toggle entire category on/off
+function toggleCategory(categoryName, enabled) {
+  const categoryItems = allCategories[categoryName] || [];
+  let newLocations = [...currentLocations];
+  
+  if (enabled) {
+    // Add all items from this category
+    categoryItems.forEach(item => {
+      if (!newLocations.includes(item)) {
+        newLocations.push(item);
+      }
+    });
+  } else {
+    // Remove all items from this category
+    newLocations = newLocations.filter(loc => !categoryItems.includes(loc));
+  }
+  
+  socket.emit("update_locations", { roomId: myRoomId, locations: newLocations });
+}
+
+// Render individual location checkboxes (grouped by category)
 function renderLocationCheckboxes(activeLocations) {
   const container = document.getElementById("locationsCheckboxes");
-  // Only render if empty or we want to update checked state
-  // But to avoid re-rendering and losing scroll position, we can just update checked status
+  container.innerHTML = "";
   
-  if (container.children.length === 0 && allAvailableLocations.length > 0) {
-    allAvailableLocations.forEach(loc => {
+  for (const [categoryName, categoryItems] of Object.entries(allCategories)) {
+    // Category header
+    const categoryHeader = document.createElement("div");
+    categoryHeader.className = "category-header";
+    categoryHeader.textContent = categoryName;
+    container.appendChild(categoryHeader);
+    
+    // Category items
+    categoryItems.forEach(loc => {
       const div = document.createElement("div");
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.value = loc;
       checkbox.id = "chk_" + loc;
-      checkbox.style.width = "auto"; // override default width
+      checkbox.checked = activeLocations.includes(loc);
+      checkbox.style.width = "auto";
       
       const label = document.createElement("label");
       label.htmlFor = "chk_" + loc;
@@ -166,12 +253,89 @@ function renderLocationCheckboxes(activeLocations) {
       container.appendChild(div);
     });
   }
+  
+  // Custom locations section
+  if (currentCustomLocations.length > 0) {
+    const categoryHeader = document.createElement("div");
+    categoryHeader.className = "category-header custom";
+    categoryHeader.textContent = "⭐ Özel Değerler";
+    container.appendChild(categoryHeader);
+    
+    currentCustomLocations.forEach(loc => {
+      const div = document.createElement("div");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.value = loc;
+      checkbox.id = "chk_custom_" + loc;
+      checkbox.checked = activeLocations.includes(loc);
+      checkbox.style.width = "auto";
+      
+      const label = document.createElement("label");
+      label.htmlFor = "chk_custom_" + loc;
+      label.textContent = loc;
+      label.style.color = "#ffc107";
 
-  // Update checked state
-  const checkboxes = container.querySelectorAll("input[type='checkbox']");
-  checkboxes.forEach(cb => {
-    cb.checked = activeLocations.includes(cb.value);
+      div.appendChild(checkbox);
+      div.appendChild(label);
+      container.appendChild(div);
+    });
+  }
+}
+
+// Render custom locations list with delete buttons
+function renderCustomLocationsList() {
+  const container = document.getElementById("customLocationsList");
+  container.innerHTML = "";
+  
+  if (currentCustomLocations.length === 0) {
+    container.innerHTML = "<p style='color: #888; font-size: 14px;'>Henüz özel değer eklenmedi.</p>";
+    return;
+  }
+  
+  currentCustomLocations.forEach(loc => {
+    const div = document.createElement("div");
+    div.className = "custom-location-item";
+    
+    const span = document.createElement("span");
+    span.textContent = loc;
+    
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "🗑️";
+    deleteBtn.className = "delete-custom-btn";
+    deleteBtn.onclick = () => removeCustomLocation(loc);
+    
+    div.appendChild(span);
+    div.appendChild(deleteBtn);
+    container.appendChild(div);
   });
+}
+
+// Add custom location
+function addCustomLocation() {
+  const input = document.getElementById("customLocationInput");
+  const value = input.value.trim();
+  
+  if (!value) {
+    showNotification("Lütfen bir değer girin", "error");
+    return;
+  }
+  
+  // Check if already exists
+  const allExisting = [...Object.values(allCategories).flat(), ...currentCustomLocations];
+  if (allExisting.includes(value)) {
+    showNotification("Bu değer zaten mevcut!", "error");
+    return;
+  }
+  
+  socket.emit("add_custom_location", { roomId: myRoomId, location: value });
+  input.value = "";
+  showNotification("Değer eklendi: " + value, "success");
+}
+
+// Remove custom location
+function removeCustomLocation(location) {
+  socket.emit("remove_custom_location", { roomId: myRoomId, location });
+  showNotification("Değer silindi: " + location, "info");
 }
 
 function updateLocations() {
@@ -200,7 +364,7 @@ socket.on("game_started", (data) => {
   const locText = document.getElementById("locationDisplay");
 
   if (roleText) roleText.innerText = "Rolün: " + data.role;
-  if (locText) locText.innerText = data.role === "Casus" ? "Kişiyi bulmaya çalış!" : "Kişi: " + data.location;
+  if (locText) locText.innerText = data.role === "Casus" ? "Değeri bulmaya çalış!" : "Değer: " + data.location;
 
   // Update currentHostId if provided (e.g. on reconnect)
   if (data.hostId) {

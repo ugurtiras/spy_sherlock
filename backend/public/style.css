@@ -246,4 +246,145 @@ li:last-child { border-bottom: none; }
   list-style: none;
 }
 
+/* Category Toggles */
+.category-toggles {
+  text-align: left;
+  padding: 10px;
+  background: #2a2a2a;
+  border-radius: 6px;
+  border: 1px solid #555;
+  margin-top: 10px;
+}
+
+.category-toggle-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 10px;
+  border-bottom: 1px solid #444;
+  transition: background 0.2s;
+}
+
+.category-toggle-item:hover {
+  background: #333;
+}
+
+.category-toggle-item:last-child {
+  border-bottom: none;
+}
+
+.category-toggle-item input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  margin-right: 12px;
+  cursor: pointer;
+  accent-color: #007bff;
+}
+
+.category-toggle-item label {
+  cursor: pointer;
+  flex: 1;
+  font-size: 16px;
+}
+
+.category-count {
+  color: #888;
+  font-weight: normal;
+  margin-left: 5px;
+}
+
+.custom-category {
+  background: rgba(255, 193, 7, 0.1);
+  border-left: 3px solid #ffc107;
+}
+
+/* Category Headers in Detailed Edit */
+.category-header {
+  background: #007bff;
+  color: white;
+  padding: 8px 10px;
+  margin: 10px 0 5px 0;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.category-header.custom {
+  background: #ffc107;
+  color: #000;
+}
+
+/* Custom Location Input */
+.custom-location-input {
+  padding: 15px;
+  background: #2a2a2a;
+  border-radius: 6px;
+  border: 1px solid #555;
+  margin-top: 10px;
+}
+
+.custom-location-input input {
+  margin-bottom: 0;
+}
+
+.custom-locations-list {
+  margin-top: 10px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.custom-location-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid #ffc107;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.custom-location-item span {
+  color: #ffc107;
+  font-weight: 500;
+}
+
+.delete-custom-btn {
+  background: transparent;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  padding: 5px 8px;
+  font-size: 16px;
+  width: auto;
+  min-width: auto;
+}
+
+.delete-custom-btn:hover {
+  background: rgba(220, 53, 69, 0.2);
+  border-radius: 4px;
+}
+
+/* Details/Summary styling */
+details {
+  margin-bottom: 10px;
+}
+
+details summary {
+  cursor: pointer;
+  padding: 12px 15px;
+  background: #333;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+details summary:hover {
+  background: #3a3a3a;
+}
+
+details[open] summary {
+  border-radius: 6px 6px 0 0;
+  margin-bottom: 0;
+}
+
 
